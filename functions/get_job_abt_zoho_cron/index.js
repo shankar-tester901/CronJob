@@ -7,10 +7,9 @@ module.exports = (cronDetails, context) => {
 
 	const catalystApp = catalyst.initialize(context);
 
-	var company = 'Empty';
-	var experience = 'Empty';
-	var location = 'Empty';
 	var title = 'Empty';
+	var company = 'Empty';
+	var location = 'Empty';
 	var salary = 'Empty';
 	var skill = 'Empty';
 
@@ -43,7 +42,7 @@ module.exports = (cronDetails, context) => {
 				skill: $(elem).children().find("div.summary ul li").text(),
 
 			});
-			//	console.log('Data is ---------   ' + JSON.stringify(data));
+			//	console.log('Data to be inserted is ---------   ' + JSON.stringify(data));
 		});
 
 		dropAllRowsFromTable(catalystApp).then(() => {
@@ -107,6 +106,7 @@ function prepareForDBInsert(catalystApp, jobEntries, context) {
 			salary: jobEntries[count].salary,
 			skill: jobEntries[count].skill
 		};
+		//console.log('RowData is   ' + JSON.stringify(rowData));
 		rows.push(rowData);
 
 	}
@@ -116,6 +116,7 @@ function prepareForDBInsert(catalystApp, jobEntries, context) {
 
 function insert_To_DB(catalystApp, rowData, context) {
 	try {
+		console.log('--------------- ABOUT TO INSERT ROWS -------------');
 
 		let datastore = catalystApp.datastore();
 		let table = datastore.table("NasaJobs");

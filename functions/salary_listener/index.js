@@ -1,38 +1,46 @@
 module.exports = (event, context) => {
 
+	console.log(' ----------------- in EVENT LISTENER NOW  ---------------------- ');
 	const catalyst = require('zcatalyst-sdk-node');
 	const catalystApp = catalyst.initialize(context);
+	console.log('Length is >>>>>>>>>>>>>>>>         ' + event.data.length);
 
-	var event_info = event.data[0];
-	console.log('Incoming event is ' + JSON.stringify(event_info));
-	var location_info = event.data[0].location;
-	console.log('Location is ' + JSON.stringify(location_info));
+	for (j = 0; j < event.data.length; j++) {
+		//	console.log(' j is   ' + j);
+		var event_info = event.data[j];
+		//	console.log('Incoming event is ' + JSON.stringify(event_info));
+		var location_info = event.data[j].location;
+		console.log('LOCATION *********     ' + JSON.stringify(location_info));
 
 
-	//if  location is GreenBelt, then mail
-	if (location_info.toUpperCase() === "GreenBelt") {
+		//if  location is GreenBelt, then mail
+		if (location_info.indexOf("Greenbelt") !== -1) {
 
-		let config = {
-			from_email: 'shankarr+1002@zohocorp.com',
-			to_email: 'shankarr+1002@zohocorp.com',
-			subject: 'Nasa Job Opportunity',
-			content: "Nasa Opportunity Details ---- >" + "    company :  " + JSON.stringify(event_info.company) + "   title :  " + JSON.stringify(event_info.title) + "   Salary Range :  " + JSON.stringify(event_info.salary) + "   Experience :  " + JSON.stringify(event_info.experience)
-		};
+			console.log("------------- ABOUT TO MAIL -------------------------   company : " + JSON.stringify(event_info.company) + "\n   title : " + JSON.stringify(event_info.title) + "\n   Salary Range : " + JSON.stringify(event_info.salary) + "\n   Skill :  " + JSON.stringify(event_info.skill));
+			let config = {
+				from_email: 'shankarr+1002@zohocorp.com',
+				to_email: 'shankarr+1002@zohocorp.com',
+				subject: 'Nasa Job Opportunity',
+				content: "Nasa Opportunity Details Are As Follows ----\n \n" + "    Company :  " + JSON.stringify(event_info.company) + "\n   Title :  " + JSON.stringify(event_info.title) + "\n   Salary Range :  " + JSON.stringify(event_info.salary) + "\n \n  Skill :  " + JSON.stringify(event_info.skill)
+			};
 
-		let email = catalystApp.email();
-		let mailPromise = email.sendMail(config);
-		mailPromise.then((mailObject) => {
-			console.log('Mail Sent ' + JSON.stringify(mailObject));
-			dropOtherRows(catalystApp, context);
-		}).catch(err => {
-			console.log('error while sending the mail' + err);
-			context.closeWithFailure();
-		});
+			//	console.log(JSON.stringify(config));
+
+			let email = catalystApp.email();
+			let mailPromise = email.sendMail(config);
+			console.log('Mail is Sent now --------------------- ');
+			mailPromise.then((mailObject) => {
+				console.log('MAIL  Sent ' + JSON.stringify(mailObject));
+				context.closeWithSuccess();
+			}).catch(err => {
+				console.log('error while sending the mail' + err);
+				context.closeWithFailure();
+			});
+		}
+
 	}
-	else {
-		console.log('No mail sent');
-		context.closeWithSuccess();
-	}
+	dropOtherRows(catalystApp, context);
+	//	context.closeWithSuccess();
 }
 
 function dropOtherRows(catalystApp, context) {
@@ -41,7 +49,7 @@ function dropOtherRows(catalystApp, context) {
 	let table = datastore.table('NasaJobs');
 
 	let q_zcql = catalystApp.zcql();
-	let zcqlPromise = q_zcql.executeZCQLQuery("SELECT * FROM NasaJobs where location !='GreenBelt' ");
+	let zcqlPromise = q_zcql.executeZCQLQuery("SELECT * FROM NasaJobs where location !='Greenbelt' ");
 	zcqlPromise.then(queryResult => {
 
 		//	console.log(' -------------   ' + JSON.stringify(queryResult));
